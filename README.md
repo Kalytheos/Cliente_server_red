@@ -70,6 +70,25 @@ Cliente → Proxy → Servidor
 └──────────────┘        └──────────────┘       └──────────────┘
 ```
 
+## 📸 Capturas de Pantalla
+
+### Cliente
+![Cliente en ejecución](documentos/cliente.jpg)
+*Interfaz del cliente enviando mensajes al proxy*
+
+### Proxy
+![Proxy filtrando mensajes](documentos/proxy.jpg)
+*Proxy aplicando filtros y reenviando mensajes al servidor*
+
+### Servidor
+![Servidor procesando mensajes](documentos/servidor.jpg)
+*Servidor recibiendo y confirmando mensajes*
+
+### Terminal
+![Terminal monitoreando el sistema](documentos/terminal.jpg)
+*Terminal mostrando todos los eventos del sistema en tiempo real*
+
+
 ## ✨ Características
 
 ### 🔒 Seguridad
@@ -302,24 +321,6 @@ Centro de monitoreo del sistema:
 - No requiere establecer conexiones
 - Los componentes pueden enviar logs sin esperar respuesta
 - Minimiza la latencia del monitoreo
-
-## 📸 Capturas de Pantalla
-
-### Cliente
-![Cliente en ejecución](documentos/cliente.jpg)
-*Interfaz del cliente enviando mensajes al proxy*
-
-### Proxy
-![Proxy filtrando mensajes](documentos/proxy.jpg)
-*Proxy aplicando filtros y reenviando mensajes al servidor*
-
-### Servidor
-![Servidor procesando mensajes](documentos/servidor.jpg)
-*Servidor recibiendo y confirmando mensajes*
-
-### Terminal
-![Terminal monitoreando el sistema](documentos/terminal.jpg)
-*Terminal mostrando todos los eventos del sistema en tiempo real*
 
 ## 🌐 Modelo OSI
 
