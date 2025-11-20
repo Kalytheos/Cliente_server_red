@@ -1,0 +1,106 @@
+import socket  
+import sys  
+
+Se importan los módulos necesarios: `socket` para la comunicación en red y `sys` para manejar argumentos de línea de comandos y salida del programa.  
+
+import uuid
+
+import uuid: Importa el módulo uuid, que proporciona funciones para manejar identificadores únicos universales.
+En este caso, lo usaremos para obtener la dirección MAC de la máquina.
+
+mac_address = ':'.join(f'{(uuid.getnode() >> i) & 0xff:02x}' for i in range(0, 48, 8))
+print(f"Dirección MAC de esta máquina: {mac_address}")
+uuid.getnode(): Obtiene la dirección MAC de la interfaz de red de la máquina en formato numérico.
+>> i: Desplaza bits hacia la derecha para extraer cada byte de la dirección MAC.
+ & 0xff: Realiza una operación de máscara para obtener los últimos 8 bits (un byte) de la dirección.
+ :02x: Formatea el byte en un número hexadecimal de dos dígitos.
+ ':'.join(...): Une los bytes formateados con : para obtener el formato estándar de MAC.
+
+
+PROXY_IP = sys.argv[1] if len(sys.argv) > 1 else "172.17.0.5"  
+PROXY_PORT = 4000  
+TERMINAL_IP = "172.17.0.2"  
+TERMINAL_PORT = 5001  
+PUERTO_ESPECIFICO = 5000  
+
+Si el usuario proporciona un argumento al ejecutar el script, se usa como la dirección IP del proxy; de lo contrario, se usa la dirección por defecto "172.17.0.5". `PROXY_PORT` es el puerto del proxy. `TERMINAL_IP` y `TERMINAL_PORT` son la dirección y el puerto de la Terminal. `PUERTO_ESPECIFICO` es el puerto en el que el cliente se vinculará localmente.  
+
+terminal_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  
+Se crea un socket UDP para enviar mensajes a la Terminal.  
+
+try:  
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
+    client_socket.bind(("0.0.0.0", PUERTO_ESPECIFICO))  
+    client_socket.connect((PROXY_IP, PROXY_PORT))  
+
+Se crea un socket TCP para la comunicación con el proxy. `bind(("0.0.0.0", PUERTO_ESPECIFICO))` asegura que el cliente use `PUERTO_ESPECIFICO`. Luego, `connect((PROXY_IP, PROXY_PORT))` intenta conectar el cliente al proxy.  
+
+proxy_response = client_socket.recv(1024).decode("utf-8")  
+if "rechazada" in proxy_response.lower():  
+    print(proxy_response)  
+    terminal_socket.sendto(proxy_response.encode("utf-8"), (TERMINAL_IP, TERMINAL_PORT))  
+    client_socket.close()  
+    terminal_socket.close()  
+    sys.exit()  
+
+El cliente espera un mensaje de respuesta del proxy. Si contiene "rechazada", se muestra en la consola, se notifica a la Terminal, y el programa termina.  
+
+print(proxy_response)  
+client_name = input("Ingresa tu nombre: ")  
+client_socket.sendall(client_name.encode("utf-8"))  
+
+Si la conexión es aceptada, el cliente ingresa su nombre, que se envía al proxy.  
+
+mensaje_terminal = f"{client_name} se ha conectado al proxy"  
+terminal_socket.sendto(mensaje_terminal.encode("utf-8"), (TERMINAL_IP, TERMINAL_PORT))  
+
+El cliente notifica a la Terminal que se ha conectado al proxy.  
+
+print(f"Conectado al proxy {PROXY_IP}:{PROXY_PORT}. Escribe 'exit' para salir.")  
+
+Mensaje informativo sobre la conexión establecida.  
+
+while True:  
+    mensaje = input("Mensaje a enviar: ")  
+    client_socket.sendall(mensaje.encode("utf-8"))  
+
+Se inicia un bucle donde el cliente envía mensajes al proxy.  
+
+mensaje_terminal = f"{client_name}, ha enviado el mensaje '{mensaje}' al proxy"  
+terminal_socket.sendto(mensaje_terminal.encode("utf-8"), (TERMINAL_IP, TERMINAL_PORT))  
+
+Cada mensaje enviado se registra en la Terminal.  
+
+if mensaje.lower() == "exit":  
+    break  
+
+Si el usuario ingresa "exit", se rompe el bucle.  
+
+confirmacion = client_socket.recv(1024).decode("utf-8")  
+print(f"-> Confirmación del servidor: {confirmacion}")  
+
+El cliente recibe una confirmación del servidor a través del proxy y la muestra en la consola.  
+
+client_socket.close()  
+
+Cuando el cliente termina, se cierra la conexión con el proxy.  
+
+except ConnectionRefusedError:  
+    mensaje_terminal = "Conexión rechazada: El proxy no está disponible o el puerto está bloqueado"  
+    print(mensaje_terminal)  
+    terminal_socket.sendto(mensaje_terminal.encode("utf-8"), (TERMINAL_IP, TERMINAL_PORT))  
+
+Si la conexión falla porque el proxy no está disponible o el puerto está bloqueado, se muestra un mensaje en la Terminal.  
+
+except OSError as e:  
+    mensaje_terminal = f"Error de conexión: {e}"  
+    print(mensaje_terminal)  
+    terminal_socket.sendto(mensaje_terminal.encode("utf-8"), (TERMINAL_IP, TERMINAL_PORT))  
+
+Se captura cualquier otro error del sistema y se informa.  
+
+finally:  
+    terminal_socket.close()  
+    sys.exit()  
+
+Finalmente, se cierra el socket de la Terminal y se finaliza el programa.

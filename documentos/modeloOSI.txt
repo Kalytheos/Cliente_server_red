@@ -1,0 +1,106 @@
+  1. Capa Física
+
+La capa física maneja la transmisión real de bits a través del medio de comunicación (cable Ethernet, Wi-Fi, etc.). En este caso, cuando el Cliente se conecta al Proxy o cuando el Servidor se comunica con la Terminal, los datos viajan físicamente a través de una infraestructura de red como Ethernet o Wi-Fi.
+
+La Capa Física (1) del modelo OSI se encarga de la transmisión de bits a través del medio físico (cables, ondas de radio, fibra óptica, etc.). En nuestro contexto, esta capa no es visible directamente porque es manejada por el hardware de red (tarjetas de red, routers, switches, etc.).
+
+
+
+Ejemplo:
+
+    Cuando el Cliente escribe un mensaje y lo envía, la información pasa a través de una tarjeta de red, convertida en señales eléctricas u ondas de radio.
+
+    Si usas un cable de red, la capa física se encarga de convertir los datos en impulsos eléctricos.
+
+  2. Capa de Enlace de Datos
+
+Esta capa se encarga de la comunicación entre dispositivos en la misma red local, detectando y corrigiendo errores en la transmisión de datos.
+
+✏ Ejemplo:
+
+    cada máquina (Cliente, Proxy, Servidor y Terminal) tiene una dirección MAC en su interfaz de red.
+
+    Si usas Ethernet, los paquetes de datos viajan con direcciones MAC, y los switches de la red se encargan de dirigirlos al destino correcto.
+
+    Detección de errores: si hay un problema en la transmisión de datos, esta capa intentará corregirlo antes de reenviar el mensaje.
+
+  3. Capa de Red
+
+Aquí es donde entran las direcciones IP y el enrutamiento.
+
+Ejemplo:
+
+    Cada máquina tiene una dirección IP, como:
+
+        Proxy: 172.17.0.3
+
+        Servidor: 172.17.0.5
+
+        Terminal: 172.17.0.2
+
+    Cuando el Cliente se conecta al Proxy, su mensaje viaja usando la dirección IP de destino.
+
+    La Terminal recibe información usando UDP, y el resto del sistema usa TCP.
+
+    Si el Cliente está en otra subred, los routers (si existen en la red) se encargarán de dirigir los paquetes correctamente.
+
+  4. Capa de Transporte
+
+Aquí entran los protocolos TCP y UDP, asegurando que los datos lleguen completos y en orden.
+
+✏ Ejemplo:
+
+    TCP (Transmisión Segura y Ordenada)
+
+        Usado entre Cliente ↔ Proxy ↔ Servidor.
+
+        Asegura que los mensajes lleguen correctamente y en orden.
+
+        El Servidor envía una confirmación al Cliente de que recibió el mensaje.
+
+    UDP (Transmisión Rápida, pero sin confirmación de entrega)
+
+        Usado entre Proxy ↔ Terminal y Servidor ↔ Terminal.
+
+        Es más rápido porque no necesita confirmaciones, ideal para los mensajes de registro.
+
+  5. Capa de Sesión
+
+Esta capa gestiona la comunicación entre Cliente, Proxy y Servidor, manteniendo la conexión abierta mientras se intercambian datos.
+
+Ejemplo:
+
+    Cuando el Cliente se conecta al Proxy, se establece una sesión.
+
+    Mientras el Cliente sigue enviando mensajes, la sesión sigue activa.
+
+    Si el Cliente envía "exit", la sesión se cierra y el socket se termina.
+
+  6. Capa de Presentación
+
+Se encarga de la codificación y decodificación de los datos transmitidos.
+
+
+    Los mensajes viajan en UTF-8 (data.decode("utf-8")).
+
+  7. Capa de Aplicación
+
+Es la interfaz con la que el usuario interactúa. Aquí están los programas que envían y reciben datos.
+
+Ejemplo:
+
+    Cliente: El usuario escribe mensajes en la consola.
+
+    Proxy: Filtra los mensajes antes de reenviarlos al Servidor.
+
+    Servidor: Procesa los mensajes y envía confirmaciones.
+
+    Terminal: Muestra información sobre conexiones y mensajes enviados.
+
+7. Aplicación	Interfaz con el usuario	Cliente, Proxy, Servidor, Terminal
+6. Presentación	Codificación de datos	decode("utf-8")
+5. Sesión	Mantiene la conexión	Conexión Cliente ↔ Proxy, Proxy ↔ Servidor
+4. Transporte	TCP/UDP, entrega confiable	Cliente-Proxy-Servidor usa TCP, Proxy-Terminal usa UDP
+3. Red	Direcciones IP, enrutamiento	IPs como 172.17.0.3
+2. Enlace de Datos	Comunicación en la LAN	Direcciones MAC, Ethernet
+1. Física	Hardware de red	Cable Ethernet, Wi-Fi

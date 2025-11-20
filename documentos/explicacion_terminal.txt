@@ -1,0 +1,82 @@
+
+Explicación línea por línea del archivo terminal.py
+---------------------------------------------------
+
+1. import socket
+   - Importa el módulo 'socket', que permite la comunicación entre computadoras a través de redes.
+2. import uuid
+
+import uuid: Importa el módulo uuid, que proporciona funciones para manejar identificadores únicos universales.
+En este caso, lo usaremos para obtener la dirección MAC de la máquina.
+
+3. mac_address = ':'.join(f'{(uuid.getnode() >> i) & 0xff:02x}' for i in range(0, 48, 8))
+print(f"Dirección MAC de esta máquina: {mac_address}")
+uuid.getnode(): Obtiene la dirección MAC de la interfaz de red de la máquina en formato numérico.
+>> i: Desplaza bits hacia la derecha para extraer cada byte de la dirección MAC.
+ & 0xff: Realiza una operación de máscara para obtener los últimos 8 bits (un byte) de la dirección.
+ :02x: Formatea el byte en un número hexadecimal de dos dígitos.
+ ':'.join(...): Une los bytes formateados con : para obtener el formato estándar de MAC.
+
+4. HOST = "0.0.0.0"
+   - Escucha en todas las interfaces de red disponibles del sistema (localhost, IPs públicas, etc.).
+
+5. PORT = 5001
+   - Puerto en el que la terminal estará esperando recibir mensajes. En este caso, el puerto 5001.
+
+7. terminal_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+   - Crea un socket UDP (DGRAM), que se usará para recibir mensajes.
+   - AF_INET indica que se usará IPv4.
+   - SOCK_DGRAM indica que el socket usará el protocolo UDP (no orientado a conexión).
+
+8. terminal_socket.bind((HOST, PORT))
+   - Asocia el socket a la IP y puerto definidos anteriormente.
+   - El socket queda a la escucha de paquetes UDP en ese puerto.
+
+10. print(f"Terminal escuchando en {HOST}:{PORT}...\n")
+   - Muestra un mensaje indicando que la terminal está activa y en qué puerto está escuchando.
+
+11. print(f"Cliente <---> Proxy usando protocolo TCP... \n")
+12. print(f"Proxy <---> Servidor usando protocolo TCP... \n")
+13. print(f"Terminal usando protocolo UDP... \n")
+   - Mensajes informativos para describir cómo se comunican los distintos componentes del sistema.
+
+15. while True:
+   - Bucle infinito que mantiene la terminal a la espera de mensajes.
+
+16. data, addr = terminal_socket.recvfrom(1024)
+   - Espera y recibe un mensaje UDP (máx. 1024 bytes).
+   - 'data' contiene el mensaje recibido.
+   - 'addr' contiene la dirección IP y puerto del remitente.
+
+17. mensaje = data.decode("utf-8")
+   - Decodifica los bytes recibidos a una cadena de texto usando UTF-8.
+
+19. if "se ha conectado al servidor" in mensaje:
+20.     print(f"[CONEXIÓN] {mensaje}")
+   - Si el mensaje contiene "se ha conectado al servidor", lo clasifica como un evento de conexión.
+
+21. elif "ha enviado el mensaje" in mensaje:
+22.     print(f"[MENSAJE] {mensaje}")
+   - Si contiene "ha enviado el mensaje", lo clasifica como un mensaje enviado por el cliente.
+
+23. elif "Conexión rechazada" in mensaje:
+24.     print(f"[RECHAZO] {mensaje}")
+   - Si contiene "Conexión rechazada", lo muestra como un rechazo.
+
+25. else:
+26.     print(f"[INFO] {mensaje}")
+   - Si no coincide con ninguna categoría anterior, lo muestra como información general.
+
+---------------------------------------------------
+Explicación general de componentes repetidos:
+
+- socket.SOCK_DGRAM:
+  - Indica que el socket usará el protocolo UDP (User Datagram Protocol), el cual es rápido y sin verificación de conexión, ideal para notificaciones.
+
+- terminal_socket.sendto(...):
+  - Usado en otros scripts para enviar mensajes UDP a la terminal.
+  - Toma como parámetros el mensaje codificado y una tupla con IP y puerto de destino.
+
+- terminal_socket.recvfrom(1024):
+  - Recibe datos UDP de hasta 1024 bytes.
+  - Retorna una tupla: (datos_recibidos, dirección_remitente).

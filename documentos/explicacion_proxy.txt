@@ -1,0 +1,128 @@
+import socket  
+Se importa el módulo `socket`, que permite la creación y manejo de conexiones de red.  
+
+import uuid
+
+import uuid: Importa el módulo uuid, que proporciona funciones para manejar identificadores únicos universales.
+En este caso, lo usaremos para obtener la dirección MAC de la máquina.
+
+mac_address = ':'.join(f'{(uuid.getnode() >> i) & 0xff:02x}' for i in range(0, 48, 8))
+print(f"Dirección MAC de esta máquina: {mac_address}")
+uuid.getnode(): Obtiene la dirección MAC de la interfaz de red de la máquina en formato numérico.
+>> i: Desplaza bits hacia la derecha para extraer cada byte de la dirección MAC.
+ & 0xff: Realiza una operación de máscara para obtener los últimos 8 bits (un byte) de la dirección.
+ :02x: Formatea el byte en un número hexadecimal de dos dígitos.
+ ':'.join(...): Une los bytes formateados con : para obtener el formato estándar de MAC.
+
+
+PROXY_HOST = "0.0.0.0"  
+PROXY_PORT = 4000  
+SERVER_IP = "172.17.0.3"  
+SERVER_PORT = 5000  
+TERMINAL_IP = "172.17.0.2"  
+TERMINAL_PORT = 5001  
+PALABRA_PROHIBIDA = "mala palabra"  
+PROXY_HOST se establece en "0.0.0.0" para que el proxy escuche en todas las interfaces de red. PROXY_PORT define el puerto en el que el proxy aceptará conexiones. SERVER_IP y SERVER_PORT especifican la dirección y puerto del servidor al que el proxy se conectará. TERMINAL_IP y TERMINAL_PORT son la dirección y puerto de la Terminal. PALABRA_PROHIBIDA es la palabra que el proxy filtrará.  
+
+terminal_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  
+Se crea un socket UDP (`SOCK_DGRAM`) para enviar mensajes a la Terminal.  
+
+proxy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
+proxy_socket.bind((PROXY_HOST, PROXY_PORT))  
+proxy_socket.listen(5)  
+Se crea un socket TCP (`SOCK_STREAM`) para aceptar conexiones de clientes. `bind((PROXY_HOST, PROXY_PORT))` lo asocia a la dirección y puerto definidos. `listen(5)` permite hasta 5 conexiones en espera.  
+
+print(f"Proxy escuchando en {PROXY_HOST}:{PROXY_PORT}...")  
+Mensaje en consola indicando que el proxy está activo.  
+
+while True:  
+    client_conn, client_addr = proxy_socket.accept()  
+Se inicia un bucle infinito donde el proxy acepta conexiones de clientes. `proxy_socket.accept()` devuelve `client_conn`, el objeto de conexión del cliente, y `client_addr`, una tupla con la IP y el puerto del cliente.  
+
+client_ip, client_port = client_addr  
+Extrae la dirección IP y el puerto del cliente.  
+
+print(f"Cliente {client_ip}:{client_port} conectado al Proxy.")  
+Muestra en la consola la información del cliente conectado.  
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
+server_socket.connect((SERVER_IP, SERVER_PORT))  
+Se crea un socket TCP para conectarse al servidor. Luego, `server_socket.connect((SERVER_IP, SERVER_PORT))` establece la conexión.  
+
+client_conn.sendall("Conexión aceptada. Envía tu nombre.".encode("utf-8"))  
+Se envía un mensaje de bienvenida al cliente.  
+
+client_name = client_conn.recv(1024).decode("utf-8")  
+El proxy recibe el nombre del cliente (hasta 1024 bytes) y lo convierte en texto.  
+
+print(f"Cliente identificado como: {client_name}")  
+Muestra en la consola el nombre del cliente.  
+
+terminal_socket.sendto(f"{client_name} se ha conectado al proxy".encode("utf-8"), (TERMINAL_IP, TERMINAL_PORT))  
+Envía un mensaje a la Terminal indicando que el cliente se ha conectado al proxy.  
+
+server_socket.sendall(client_name.encode("utf-8"))  
+El proxy reenvía el nombre del cliente al servidor.  
+
+while True:  
+    data = client_conn.recv(1024).decode("utf-8")  
+Se inicia un bucle para recibir mensajes del cliente.  
+
+if not data or data.lower() == "exit":  
+Si el mensaje está vacío o es "exit", el cliente cierra la conexión.  
+
+print(f"{client_name} ha cerrado la conexión.")  
+Muestra en consola que el cliente se desconectó.  
+
+break  
+Rompe el bucle para finalizar la comunicación con el cliente.  
+
+if data.strip() == PALABRA_PROHIBIDA:  
+    print(f"Mensaje bloqueado por el Proxy: '{data}'")  
+    client_conn.sendall("Mensaje bloqueado por contenido prohibido.".encode("utf-8"))  
+    continue  
+Si el mensaje coincide exactamente con la palabra prohibida, el proxy lo bloquea. Se muestra un mensaje en consola, se notifica al cliente y se usa `continue` para ignorarlo sin enviarlo al servidor.  
+
+print(f"Proxy reenvía el mensaje de {client_name} al servidor: {data}")  
+Muestra en consola que el proxy reenvía el mensaje al servidor.  
+
+server_socket.sendall(data.encode("utf-8"))  
+El proxy envía el mensaje del cliente al servidor.  
+
+confirmacion = server_socket.recv(1024).decode("utf-8")  
+El proxy espera la confirmación del servidor.  
+
+client_conn.sendall(confirmacion.encode("utf-8"))  
+El proxy reenvía la confirmación del servidor al cliente.  
+
+terminal_socket.sendto(  
+    f"Proxy ha reenviado el mensaje '{data}' de {client_name} al servidor".encode("utf-8"),  
+    (TERMINAL_IP, TERMINAL_PORT)  
+)  
+El proxy informa a la Terminal que ha reenviado el mensaje del cliente al servidor.  
+
+client_conn.close()  
+server_socket.close()  
+Cuando el cliente se desconecta, el proxy cierra sus conexiones con el cliente y el servidor.  
+
+proxy_socket.close()  
+terminal_socket.close()  
+No se ejecutan porque el proxy está en un bucle infinito, pero cerrarían los sockets si el código terminara.  
+
+socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
+Crea un socket TCP para la comunicación entre cliente y servidor.  
+
+socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  
+Crea un socket UDP para enviar mensajes a la Terminal.  
+
+proxy_socket.accept()  
+Espera una conexión entrante y la acepta.  
+
+conn.recv(1024).decode("utf-8")  
+Recibe datos del cliente y los convierte en texto.  
+
+conn.sendall(mensaje.encode("utf-8"))  
+Envía un mensaje al cliente.  
+
+terminal_socket.sendto(mensaje.encode("utf-8"), (TERMINAL_IP, TERMINAL_PORT))  
+Envía un mensaje a la Terminal usando UDP.

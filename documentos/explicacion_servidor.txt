@@ -1,0 +1,120 @@
+import socket
+Se importa el módulo socket, que permite crear y manejar conexiones de red.
+
+import uuid
+
+import uuid: Importa el módulo uuid, que proporciona funciones para manejar identificadores únicos universales.
+En este caso, lo usaremos para obtener la dirección MAC de la máquina.
+
+mac_address = ':'.join(f'{(uuid.getnode() >> i) & 0xff:02x}' for i in range(0, 48, 8))
+print(f"Dirección MAC de esta máquina: {mac_address}")
+uuid.getnode(): Obtiene la dirección MAC de la interfaz de red de la máquina en formato numérico.
+>> i: Desplaza bits hacia la derecha para extraer cada byte de la dirección MAC.
+ & 0xff: Realiza una operación de máscara para obtener los últimos 8 bits (un byte) de la dirección.
+ :02x: Formatea el byte en un número hexadecimal de dos dígitos.
+ ':'.join(...): Une los bytes formateados con : para obtener el formato estándar de MAC.
+
+
+HOST = "0.0.0.0"
+PORT = 5000
+BANNED_PORT = 6000
+TERMINAL_IP = "172.17.0.2"
+TERMINAL_PORT = 5001
+HOST se establece en "0.0.0.0" para que el servidor escuche en todas las interfaces de red disponibles. PORT define el puerto en el que el servidor aceptará conexiones. BANNED_PORT indica un puerto bloqueado que no permitirá conexiones. TERMINAL_IP y TERMINAL_PORT especifican la dirección y puerto de la Terminal que recibirá mensajes informativos.
+
+terminal_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+Se crea un socket UDP (AF_INET indica IPv4 y SOCK_DGRAM indica UDP) para enviar mensajes a la Terminal.
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((HOST, PORT))
+server_socket.listen(5)
+Se crea un socket TCP (SOCK_STREAM indica TCP) para manejar las conexiones de los clientes. bind((HOST, PORT)) asigna el servidor a la dirección y puerto definidos. listen(5) permite hasta 5 conexiones en cola.
+
+print(f"Servidor escuchando en {HOST}:{PORT}...")
+Mensaje en consola indicando que el servidor está activo y esperando conexiones.
+
+while True:
+conn, addr = server_socket.accept()
+Se inicia un bucle infinito que mantiene el servidor en espera de conexiones. server_socket.accept() acepta una conexión entrante y devuelve dos valores: conn, el objeto de conexión con el cliente, y addr, una tupla con la dirección IP y puerto del cliente.
+
+client_ip, client_port = addr
+Se extraen la dirección IP y el puerto del cliente desde addr.
+
+if client_port == BANNED_PORT:
+mensaje_rechazo = f"Conexión rechazada desde {client_ip}:{client_port} (Puerto Bloqueado)"
+print(mensaje_rechazo)
+conn.sendall(f"Conexión rechazada: No puedes usar el puerto {BANNED_PORT}.".encode("utf-8"))
+conn.close()
+terminal_socket.sendto(mensaje_rechazo.encode("utf-8"), (TERMINAL_IP, TERMINAL_PORT))
+continue
+Si el puerto del cliente coincide con el puerto bloqueado (6000), se muestra un mensaje de rechazo en consola, se envía un mensaje informando al cliente sobre la conexión rechazada, se cierra la conexión (conn.close()), se envía un mensaje a la Terminal y con continue se vuelve a esperar nuevas conexiones.
+
+client_name = conn.recv(1024).decode("utf-8")
+El servidor recibe el nombre del cliente (hasta 1024 bytes) y lo decodifica en texto.
+
+print(f"Cliente conectado desde {client_ip} con nombre {client_name}")
+Muestra en la consola la IP y el nombre del cliente conectado.
+
+terminal_socket.sendto(
+f"{client_name} se ha conectado al servidor desde {client_ip}".encode("utf-8"),
+(TERMINAL_IP, TERMINAL_PORT)
+)
+Envía un mensaje a la Terminal indicando que un cliente se ha conectado.
+
+while True:
+data = conn.recv(1024).decode("utf-8")
+Se inicia un bucle para recibir mensajes del cliente. conn.recv(1024) recibe hasta 1024 bytes y decode("utf-8") convierte los datos en texto.
+
+if not data or data.lower() == "exit":
+Si el mensaje recibido está vacío o es "exit", se cierra la conexión con el cliente.
+
+print(f"{client_name} ({client_ip}) ha cerrado la conexión.")
+Muestra en consola que el cliente ha cerrado la conexión.
+
+break
+Rompe el bucle para terminar la conexión con el cliente.
+
+print(f"Mensaje recibido de '{client_ip}', con nombre '{client_name}': {data}")
+Muestra en la consola el mensaje recibido por el cliente.
+
+terminal_socket.sendto(
+f"Servidor ha recibido de '{client_name}' el mensaje '{data}'".encode("utf-8"),
+(TERMINAL_IP, TERMINAL_PORT)
+)
+Envía un mensaje a la Terminal indicando que el servidor recibió un mensaje de un cliente.
+
+confirmacion = f"Mensaje recibido: {data}"
+conn.sendall(confirmacion.encode("utf-8"))
+Se envía una confirmación al cliente, indicándole que su mensaje fue recibido.
+
+conn.close()
+Se cierra la conexión con el cliente.
+
+server_socket.close()
+terminal_socket.close()
+Nunca se ejecutan porque el servidor está en un bucle infinito, pero si el código finalizara, cerrarían ambos sockets.
+
+socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+Crea un socket TCP para comunicación con los clientes.
+
+socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+Crea un socket UDP para enviar mensajes a la Terminal.
+
+server_socket.bind((HOST, PORT))
+Asigna el servidor a un puerto específico.
+
+server_socket.listen(5)
+Permite hasta 5 conexiones en espera.
+
+server_socket.accept()
+Espera conexiones y devuelve el socket del cliente y su dirección.
+
+conn.recv(1024).decode("utf-8")
+Recibe datos del cliente y los convierte a texto.
+
+conn.sendall(mensaje.encode("utf-8"))
+Envía un mensaje al cliente.
+
+terminal_socket.sendto(mensaje.encode("utf-8"), (TERMINAL_IP, TERMINAL_PORT))
+Envía un mensaje a la Terminal usando UDP.
+
