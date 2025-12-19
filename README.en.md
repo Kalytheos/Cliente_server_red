@@ -3,11 +3,6 @@
   <a href="README.en.md">English</a>
 </p>
 
-<p align="center">
-  <a href="README.md">Español</a> |
-  <a href="README.en.md">English</a>
-</p>
-
 # Client–Proxy–Server Communication System with Docker
 
 Distributed network system that implements a three-layer communication model using TCP/UDP sockets in Python and Docker. The system enables communication between a client and a server through an intermediary proxy that applies security filters and traffic control, while a centralized terminal monitors all activities in real time.
