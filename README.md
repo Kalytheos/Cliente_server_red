@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="README.md">Español</a> |
+  <a href="README.en.md">English</a>
+</p>
+
+
 # Sistema de Comunicación Cliente-Proxy-Servidor con Docker
 
 Sistema de red distribuido que implementa un modelo de comunicación de tres capas utilizando sockets TCP/UDP en Python y Docker. El sistema permite la comunicación entre un cliente y un servidor a través de un proxy intermediario que aplica filtros de seguridad y control de tráfico, mientras una terminal centralizada monitorea todas las actividades en tiempo real.
