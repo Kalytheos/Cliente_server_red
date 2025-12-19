@@ -381,7 +381,3 @@ Desarrollado como proyecto educativo para demostrar conceptos de:
 - Contenedorización con Docker
 - Modelo OSI
 - Sistemas distribuidos
-
----
-
-**Nota**: Este es un proyecto educativo diseñado para ilustrar conceptos de redes y comunicación. No está diseñado para entornos de producción sin mejoras adicionales de seguridad y escalabilidad.
