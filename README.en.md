@@ -28,10 +28,11 @@ This project implements a network communication system that simulates a real ent
 
 ### Communication Flow
 
-Client → Proxy → Server
-↓ ↓ ↓
-└────→ Terminal ←┘
-
+```
+Client  → Proxy →  Server
+   ↓        ↓        ↓
+   └────→ Terminal ←┘
+```
 
 **Step-by-step process:**
 1. The **Client** sends a message to the **Proxy**
@@ -51,7 +52,7 @@ Client → Proxy → Server
 | **Terminal** | 172.17.0.2 | 5001 | UDP | Centralized event monitoring |
 | **Server** | 172.17.0.3 | 5000 | TCP | Processes messages |
 | **Proxy** | 172.17.0.5 | 4000 | TCP | Content filtering and access control |
-| **Client** | Variable | 5000 | TCP | Sends messages |
+| **Client** | Variable | 5005 | TCP | Sends messages |
 
 ### Network Diagram
 
@@ -69,7 +70,7 @@ Client → Proxy → Server
 ┌──────────────┐  TCP   ┌──────────────┐  TCP  ┌──────────────┐
 │   Client     │───────→│    Proxy     │──────→│   Server     │
 │  Variable IP │        │ 172.17.0.5   │       │ 172.17.0.3   │
-│  Port  5000  │←───────│ Port  4000   │←──────│ Port  5000   │
+│  Port  5000  │←───────│ Port  4000   │←──────│ Port  5005   │
 └──────────────┘        └──────────────┘       └──────────────┘
 ```
 
