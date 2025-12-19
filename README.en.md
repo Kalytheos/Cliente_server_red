@@ -57,9 +57,9 @@ Client → Proxy → Server
 
 ```
 ┌──────────────┐
-│   Terminal   │ ← Recibe logs UDP de todos los componentes
+│   Terminal   │ ← Gets UDP logs from all components
 │  172.17.0.2  │
-│   Puerto 5001│
+│   Port   5001│
 └──────────────┘
        ↑
        │ (UDP logs)
@@ -67,9 +67,9 @@ Client → Proxy → Server
 ┌──────┴───────────────────┬─────────────────────┐
 │                          │                     │
 ┌──────────────┐  TCP   ┌──────────────┐  TCP  ┌──────────────┐
-│   Cliente    │───────→│    Proxy     │──────→│   Servidor   │
+│   Client     │───────→│    Proxy     │──────→│   Server     │
 │  Variable IP │        │ 172.17.0.5   │       │ 172.17.0.3   │
-│  Puerto 5000 │←───────│ Puerto 4000  │←──────│ Puerto 5000  │
+│  Port  5000  │←───────│ Port  4000   │←──────│ Port  5000   │
 └──────────────┘        └──────────────┘       └──────────────┘
 ```
 
